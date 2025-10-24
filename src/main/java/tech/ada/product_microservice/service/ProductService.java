@@ -38,4 +38,9 @@ public class ProductService {
         this.allProducts().set(indexProduct, productBySku);
         return productBySku;
     }
+
+    public void delete(Long sku) {
+        Product productBySku = this.getProductBySku(sku);
+        this.allProducts().remove(productBySku);
+    }
 }
