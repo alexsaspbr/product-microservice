@@ -40,6 +40,15 @@ public class ProductController {
         return ResponseEntity.ok(this.productService.updateProduct(sku, product));
     }
 
+    @PutMapping("/{sku}")
+    public ResponseEntity<Product> update(@PathVariable Long sku,
+                                          @RequestBody Product product) {
+        if (!sku.equals(product.getSku())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.ok(this.productService.partialUpdate(sku, product));
+    }
+
     //PATCH - PARTIAL UPDATE
     @PatchMapping("/{sku}")
     public ResponseEntity<Product> partialUpdate(@PathVariable Long sku,
@@ -54,4 +63,9 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{sku}")
+    public ResponseEntity<Void> delete(@PathVariable Long sku) {
+        this.productService.delete(sku);
+        return ResponseEntity.noContent().build();
+    }
 }

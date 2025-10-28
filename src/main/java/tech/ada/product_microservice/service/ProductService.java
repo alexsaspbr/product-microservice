@@ -52,4 +52,9 @@ public class ProductService {
 
         this.productRepository.delete(productBySku);
     }
+
+    public void delete(Long sku) {
+        Product productBySku = this.getProductBySku(sku);
+        this.allProducts().remove(productBySku);
+    }
 }
