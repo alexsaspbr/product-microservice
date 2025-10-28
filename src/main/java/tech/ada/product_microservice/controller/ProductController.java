@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import tech.ada.product_microservice.model.Product;
 import tech.ada.product_microservice.service.ProductService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -15,6 +16,11 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    @GetMapping(value = "/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String description, @RequestParam BigDecimal minPrice, @RequestParam BigDecimal maxPrice) {
+        return ResponseEntity.ok(this.productService.searchProducts(description, minPrice, maxPrice));
+    }
 
     @GetMapping
     public ResponseEntity<List<Product>> allProducts() {

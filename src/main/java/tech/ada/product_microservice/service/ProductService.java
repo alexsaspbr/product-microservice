@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import tech.ada.product_microservice.model.Product;
 import tech.ada.product_microservice.repository.ProductRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -12,6 +13,10 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    public List<Product> searchProducts(String description, BigDecimal minPrice, BigDecimal maxPrice) {
+        return this.productRepository.findAllByDescriptionContainingAndPriceBetween(description, minPrice, maxPrice);
+    }
 
     public List<Product> allProducts() {
         return this.productRepository.findAll();

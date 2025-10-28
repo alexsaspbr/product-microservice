@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import tech.ada.product_microservice.model.Product;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -19,5 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "SELECT p FROM Product p WHERE p.sku = :sku")
     Product superQuery2(@Param("sku") Long sku);
+
+    @Query(value = "SELECT p FROM Product p WHERE p.description LIKE %:description% AND p.price BETWEEN :minPrice AND :maxPrice")
+    List<Product> findAllByDescriptionContainingAndPriceBetween(@Param("description") String description, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
 
 }
