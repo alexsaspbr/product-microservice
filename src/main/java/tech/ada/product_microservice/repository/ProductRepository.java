@@ -1,42 +1,53 @@
 package tech.ada.product_microservice.repository;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 import tech.ada.product_microservice.model.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Product findBySku(Long sku);
-    Product findByDescriptionContainingAndPrice(String description, BigDecimal price);
 
-    @Query(value = "SELECT * FROM tb_products where sku = :sku", nativeQuery = true)
-    Product superQuery(@Param("sku") Long sku);
+    Product findBySKU(Long SKU);
 
-    @Query(value = "SELECT p FROM Product p WHERE p.sku = :sku")
-    Product superQuery2(@Param("sku") Long sku);
+    Optional<Product> findByDescription(String description);
 
-    //DELETE
-    @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM TB_PRODUCTS p WHERE p.id = :id", nativeQuery = true)
-    void deleteById(@Param("id") Long id);
+    List<Product> findByDescriptionContainingIgnoreCase(String keyword);
 
-    //UPDATE
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE TB_PRODUCTS p set p.price = :price WHERE p.id = :id", nativeQuery = true)
-    void updateProduct(@Param("id") Long id, @Param("price") BigDecimal price);
+    List<Product> findByPriceGreaterThan(BigDecimal price);
 
-    List<Product> searchByDescription(@Param("description") String description);
+    List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
-    List<Product> searchBySku(@Param("sku") Long sku);
+
+
+    List<Product> findBySKUAndPriceLessThan(Long SKU, BigDecimal price);
+
+    List<Product> findTop5ByOrderByPriceAsc();
+
+    @Query("SELECT p FROM Product p WHERE LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Product> searchByDescriptionJPQL(@Param("keyword") String keyword);
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.price > :price")
+    Long countProductsWithPriceGreaterThan(@Param("price") BigDecimal price);
+
+    @Query("""
+    SELECT p FROM Product p
+    WHERE (:description IS NULL OR LOWER(p.description) LIKE LOWER(CONCAT('%', :description, '%')))
+    AND (:minPrice IS NULL OR p.price >= :minPrice)
+    AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+    """)
+    List<Product> searchProducts(
+            @Param("description") String description,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice);
+
+
 
 }

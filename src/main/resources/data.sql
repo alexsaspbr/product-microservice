@@ -1,1 +1,1 @@
-insert into tb_products (sku, description, price) values (1,'PlayStation 5', 4500.0);
+INSERT INTO tb_products (sku, description, price) VALUES (1,'PlayStation 5', 4500.0);
