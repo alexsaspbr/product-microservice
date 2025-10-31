@@ -1,116 +1,131 @@
-# 🧩 Exercícios --- Query Methods com Spring Data JPA
+# Product Microservice
 
-## ⚙️ Interface Base do Repositório
+A Spring Boot microservice for managing products with dynamic search capabilities.
 
-``` java
-public interface ProductRepository extends JpaRepository<Product, Long> {
-}
+## Features
+
+- ✅ CRUD operations for products
+- 🔍 Dynamic search with multiple filter options
+- 📊 Advanced queries using JPQL
+- 🚀 Built with Spring Boot 3.x
+- 🗃️ Uses H2 in-memory database (for development)
+- 🛠️ Maven-based project
+
+## API Endpoints
+
+### Product Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/products` | Get all products |
+| GET    | `/products/{SKU}` | Get product by SKU |
+| GET    | `/products/description/{description}` | Get product by description |
+| POST   | `/products` | Create a new product |
+| PUT    | `/products/{sku}` | Update an existing product |
+| PATCH  | `/products/{sku}` | Partially update a product |
+| DELETE | `/products/{sku}` | Delete a product |
+
+### Search Endpoints
+
+| Method | Endpoint | Query Parameters | Description |
+|--------|----------|------------------|-------------|
+| GET    | `/products/search` | `keyword` | Search products by description (case-insensitive) |
+| GET    | `/products/search-by-price` | `minPrice` | Find products with price greater than minPrice |
+| GET    | `/products/search-by-price-range` | `minPrice`, `maxPrice` | Find products within price range |
+| GET    | `/products/search-by-sku-and-price` | `sku`, `maxPrice` | Find by SKU and price less than maxPrice |
+| GET    | `/products/top-5` | - | Get 5 cheapest products |
+| GET    | `/products/search-jpql` | `keyword` | Search using JPQL |
+| GET    | `/products/count-by-price` | `price` | Count products with price greater than value |
+| GET    | `/products/dynamic-search` | `description`, `minPrice`, `maxPrice` | Dynamic search with optional filters |
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17 or higher
+- Maven 3.6.3 or higher
+- (Optional) Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code, etc.)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/product-microservice.git
+   cd product-microservice
+   ```
+
+2. Build the project:
+   ```bash
+   mvn clean install
+   ```
+
+3. Run the application:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+The application will start on `http://localhost:8080` by default.
+
+## Database
+
+The application uses an in-memory H2 database by default. The H2 console is available at:
+- URL: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:productdb`
+- Username: `sa`
+- Password: (leave empty)
+
+## Example Requests
+
+### Create a new product
+```bash
+curl -X POST http://localhost:8080/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sku": 1001,
+    "description": "Smartphone XYZ",
+    "price": 599.99,
+    "stock": 50
+  }'
 ```
 
-------------------------------------------------------------------------
+### Dynamic search example
+```bash
+# Search for products containing 'phone' with price between 100 and 1000
+curl "http://localhost:8080/products/dynamic-search?description=phone&minPrice=100&maxPrice=1000"
+```
 
-## 🧠 Exercícios --- Query Methods
+## Project Structure
 
-### 🧩 Exercício 1 --- Consultas simples por descrição
+```
+src/main/java/tech/ada/product_microservice/
+├── config/           # Configuration classes
+├── controller/       # REST controllers
+├── model/            # Entity classes
+├── repository/       # Data access layer
+├── service/          # Business logic
+└── ProductMicroserviceApplication.java  # Main application class
+```
 
-**Objetivo:**\
-Criar métodos que filtrem produtos com base no campo `description`.
+## Contributing
 
-**Tarefas:** 
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-1.Crie um método para buscar um produto pela descrição
-exata.\
+## License
 
-2.  Crie um método que busque todos os produtos que contenham parte da
-    descrição.\
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-3.  Crie um método que busque todos os produtos cuja descrição comece
-    com determinado texto.\
+## Acknowledgments
 
-------------------------------------------------------------------------
+- Built with ❤️ using Spring Boot
+- Thanks to all contributors who have helped with this project
 
-### 🧩 Exercício 2 --- Consultas por preço
+---
 
-**Objetivo:**\
-Praticar operadores de comparação com campos numéricos.
-
-**Tarefas:** 
-
-1.Buscar produtos com preço maior que um valor.\
-
-2.  Buscar produtos com preço entre dois valores.\
-
-3.  Buscar o produto mais caro.\
-
-
-------------------------------------------------------------------------
-
-### 🧩 Exercício 3 --- Consultas compostas
-
-**Objetivo:**\
-Usar múltiplas condições no mesmo método.
-
-**Tarefas:** 
-
-1. Buscar produtos com um `sku` específico e preço abaixo
-de um valor.\
-
-2.  Buscar produtos com determinada descrição **ou** com preço acima de
-    um valor.\
-    
-------------------------------------------------------------------------
-
-### 🧩 Exercício 4 --- Ordenação e Limites
-
-**Objetivo:**\
-Aprender a aplicar ordenação e limitar resultados.
-
-**Tarefas:**
-
-1. Buscar os 5 produtos mais baratos.\
-
-2.  Buscar os 3 produtos mais caros.\
-
-------------------------------------------------------------------------
-
-### 🧩 Exercício 5 --- Consultas personalizadas com @Query
-
-**Objetivo:**\
-Utilizar JPQL para consultas customizadas.
-
-**Tarefas:**
-
-1. Buscar produtos cuja descrição contenha parte de um
-texto (ignorando maiúsculas/minúsculas).\
-
-2.  Buscar produtos por faixa de preço mínima e máxima.
-
-------------------------------------------------------------------------
-
-### 🧩 Exercício 6 --- Contagem e Existência
-
-**Objetivo:**\
-Aprender a usar métodos de agregação.
-
-**Tarefas:**
-
-1. Contar quantos produtos possuem preço acima de um
-valor.\
-
-2.  Verificar se existe um produto com determinado SKU.\
-
-------------------------------------------------------------------------
-
-### 💡 Desafio Final --- Filtro Dinâmico
-
-Crie um endpoint `/products/search` que receba parâmetros opcionais:
-
--   `description`
--   `minPrice`
--   `maxPrice`
-
-E retorne os produtos filtrados dinamicamente conforme os parâmetros
-informados.
-
-Sugestões: - Use **Specifications** (`JpaSpecificationExecutor`), ou -
-Use uma query JPQL com `COALESCE` para tratar parâmetros nulos.
+<div align="center">
+  <p>Made with ❤️ by Your Name</p>
+  <p>📧 your.email@example.com</p>
+</div>
