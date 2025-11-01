@@ -27,7 +27,6 @@ public class ProductService {
 
     public Product partialUpdate(Long sku, Product product) {
         Product productBySku = this.getProductBySku(sku);
-
         product.setId(productBySku.getId());
         product.setSku(productBySku.getSku());
         return this.productRepository.save(product);
@@ -35,9 +34,8 @@ public class ProductService {
 
     public Product updateProduct(Long sku, Product product) {
         Product productBySku = this.getProductBySku(sku);
-        if (productBySku == null) {
-            throw new RuntimeException("Produto nao encontrado com SKU: " + sku);
-        }
+        if (productBySku == null)
+            throw new RuntimeException("Produto não encontrado com SKU: " + sku);
 
         product.setId(productBySku.getId());
         product.setSku(productBySku.getSku());
@@ -46,10 +44,13 @@ public class ProductService {
 
     public void deleteProduct(Long sku) {
         Product productBySku = this.getProductBySku(sku);
-        if (productBySku == null) {
-            throw new RuntimeException("Produto nao encontrado com SKU: " + sku);
-        }
+        if (productBySku == null)
+            throw new RuntimeException("Produto não encontrado com SKU: " + sku);
 
         this.productRepository.delete(productBySku);
+    }
+
+    public List<Product> searchProducts(String description, Double minPrice, Double maxPrice) {
+        return productRepository.searchProducts(description, minPrice, maxPrice);
     }
 }

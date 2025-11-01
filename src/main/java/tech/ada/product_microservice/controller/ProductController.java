@@ -21,37 +21,39 @@ public class ProductController {
         return ResponseEntity.ok(this.productService.allProducts());
     }
 
-    //GET BY ID
     @GetMapping("/{sku}")
     public ResponseEntity<Product> getProduct(@PathVariable Long sku) {
         return ResponseEntity.ok(this.productService.getProductBySku(sku));
     }
 
-    //POST - CREATE
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.productService.create(product));
     }
 
-    //PUT - UPDATE ALL
     @PutMapping("/{sku}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long sku,
-                                                 @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long sku, @RequestBody Product product) {
         return ResponseEntity.ok(this.productService.updateProduct(sku, product));
     }
 
-    //PATCH - PARTIAL UPDATE
     @PatchMapping("/{sku}")
-    public ResponseEntity<Product> partialUpdate(@PathVariable Long sku,
-                                                 @RequestBody Product product) {
+    public ResponseEntity<Product> partialUpdate(@PathVariable Long sku, @RequestBody Product product) {
         return ResponseEntity.ok(this.productService.partialUpdate(sku, product));
     }
 
-    //DELETE - REMOVE
     @DeleteMapping("/{sku}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long sku) {
         this.productService.deleteProduct(sku);
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProducts(
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
+
+        List<Product> results = productService.searchProducts(description, minPrice, maxPrice);
+        return ResponseEntity.ok(results);
+    }
 }
