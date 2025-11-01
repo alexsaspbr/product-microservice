@@ -47,7 +47,6 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    // NOVO ENDPOINT DE BUSCA DINÂMICA
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProducts(
             @RequestParam(required = false) String description,
