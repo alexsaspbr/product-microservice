@@ -50,7 +50,6 @@ public class ProductService {
         this.productRepository.delete(productBySku);
     }
 
-    // NOVO MÉTODO DE BUSCA DINÂMICA
     public List<Product> searchProducts(String description, Double minPrice, Double maxPrice) {
         return productRepository.searchProducts(description, minPrice, maxPrice);
     }
