@@ -10,11 +10,12 @@ import tech.ada.product_microservice.model.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    Product findBySku(Long sku);
+    Optional<Product> findBySku(Long sku);
     Product findByDescriptionContainingAndPrice(String description, BigDecimal price);
 
     @Query(value = "SELECT * FROM tb_products where sku = :sku", nativeQuery = true)

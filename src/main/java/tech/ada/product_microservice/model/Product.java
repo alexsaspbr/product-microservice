@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.awt.print.Book;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Table(name = "tb_products")
@@ -33,7 +31,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private Long sku;
 
     @Column(length = 100)

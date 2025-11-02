@@ -1,17 +1,24 @@
 package tech.ada.product_microservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import tech.ada.product_microservice.dto.PageDTO;
+import tech.ada.product_microservice.dto.PageableDTO;
 import tech.ada.product_microservice.dto.ProductDTO;
 import tech.ada.product_microservice.mapper.ProductMapper;
 import tech.ada.product_microservice.model.Product;
 import tech.ada.product_microservice.repository.ProductRepository;
+import tech.ada.product_microservice.util.SortUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,60 +26,80 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private PageableDTO pageableDTO;
 
-    @Cacheable("produtos")
-    public List<Product> allProducts() {
-        return this.productRepository.findAll();
+    @Cacheable("products")
+    public List<ProductDTO> allProducts() {
+        return this.productRepository.findAll()
+                .stream().map(this.productMapper::toDTO).toList();
     }
 
-    public Page<Product> allProducts(Pageable pageable) {
-        return this.productRepository.findAll(pageable);
+    public PageDTO<ProductDTO> allProducts(PageableDTO pageableDTO) {
+        Optional<Sort> optionalSort = SortUtils.createSort(pageableDTO.getSort());
+        PageRequest pageRequest = optionalSort.isPresent() ? PageRequest.of(pageableDTO.getPage(),
+                                                pageableDTO.getSize(),
+                                                optionalSort.get()) : PageRequest.of(pageableDTO.getPage(),
+                                                pageableDTO.getSize());
+        Page<Product> pageProducts = this.productRepository.findAll(pageRequest);
+        return new PageDTO<ProductDTO>(pageProducts.getContent().stream()
+                .map(this.productMapper::toDTO).toList(),
+                pageProducts.getTotalElements(),
+                pageProducts.getTotalPages(),
+                pageProducts.getNumber(),
+                pageProducts.getNumberOfElements());
     }
 
-    public Product getProductBySku(Long sku) {
-        return this.productRepository.findBySku(sku);
+    public ProductDTO getProductBySku(Long sku) {
+        return this.productMapper.toDTO(this.getBySku(sku));
     }
 
+    private Product getBySku(Long sku) {
+        return this.productRepository.findBySku(sku)
+                .orElseThrow(() -> new RuntimeException("Produto nao encontrado"));
+    }
+
+    @CachePut("products")
     public ProductDTO create(ProductDTO productDTO) {
         Product product = this.productMapper.toEntity(productDTO);
         return this.productMapper.toDTO(this.productRepository.save(product));
     }
 
-    public Product partialUpdate(Long sku, Product product) {
-        Product productBySku = this.getProductBySku(sku);
-        this.productRepository.updateProduct(productBySku.getId(), product.getPrice());
+    @CachePut("products")
+    public ProductDTO updatePrice(Long sku, ProductDTO produtoDTO) {
+        Product productBySku = this.getBySku(sku);
+        BigDecimal price = produtoDTO.getPrice();
+        this.productRepository.updateProduct(productBySku.getId(), price);
+        productBySku.setPrice(price);
+        return this.productMapper.toDTO(productBySku);
+    }
+
+    public ProductDTO updateProduct(Long sku, ProductDTO productDTO) {
+        Product productBySku = this.getBySku(sku);
+
+        Product product = new Product();
         product.setId(productBySku.getId());
         product.setSku(productBySku.getSku());
         product.setDescription(productBySku.getDescription());
-        return product;
+        product.setPrice(productBySku.getPrice());
+        Product productUpdated = this.productRepository.save(product);
+        return this.productMapper.toDTO(productUpdated);
     }
 
-    public Product updateProduct(Long sku, Product product) {
-        Product productBySku = this.getProductBySku(sku);
-        if (productBySku == null) {
-            throw new RuntimeException("Produto nao encontrado com SKU: " + sku);
-        }
-
-        product.setId(productBySku.getId());
-        product.setSku(productBySku.getSku());
-        return this.productRepository.save(product);
-    }
-
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(Long sku) {
-        Product productBySku = this.getProductBySku(sku);
-        if (productBySku == null) {
-            throw new RuntimeException("Produto nao encontrado com SKU: " + sku);
-        }
+        Product productBySku = this.getBySku(sku);
 
-        //this.productRepository.delete(productBySku);
         this.productRepository.deleteById(productBySku.getId());
     }
 
-    public List<Product> searchByDescription(String description) {
-        return this.productRepository.searchByDescription(description);
+    public List<ProductDTO> searchByDescription(String description) {
+        return this.productRepository.searchByDescription(description)
+                .stream().map(this.productMapper::toDTO).toList();
     }
 
-    public Product searchBySku(Long sku) {
-        return this.productRepository.searchBySku(sku).stream().findFirst().orElse(null);
+    public ProductDTO searchBySku(Long sku) {
+        return this.productRepository.searchBySku(sku).stream().findFirst()
+                .map(this.productMapper::toDTO)
+                .orElse(null);
     }
 }

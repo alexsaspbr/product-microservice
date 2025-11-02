@@ -1,18 +1,20 @@
 package tech.ada.product_microservice.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.ada.product_microservice.dto.PageDTO;
+import tech.ada.product_microservice.dto.PageableDTO;
 import tech.ada.product_microservice.dto.ProductDTO;
-import tech.ada.product_microservice.model.Product;
 import tech.ada.product_microservice.service.ProductService;
 
 import java.util.List;
 
+@Tag(name = "Products")
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -20,25 +22,26 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @Operation
     @GetMapping
-    public ResponseEntity<List<Product>> allProducts() {
+    public ResponseEntity<List<ProductDTO>> allProducts() {
         return ResponseEntity.ok(this.productService.allProducts());
     }
 
     @GetMapping("/paging")
-    public ResponseEntity<Page<Product>> allProducts(Pageable pageable) {
-        return ResponseEntity.ok(this.productService.allProducts(pageable));
+    public ResponseEntity<PageDTO<ProductDTO>> allProducts(PageableDTO pageableDTO) {
+        return ResponseEntity.ok(this.productService.allProducts(pageableDTO));
     }
 
     //GET BY ID
     @GetMapping("/{sku}")
-    public ResponseEntity<Product> getProduct(@PathVariable Long sku) {
+    public ResponseEntity<ProductDTO> getProduct(@PathVariable Long sku) {
         //return ResponseEntity.ok(this.productService.getProductBySku(sku));
         return ResponseEntity.ok(this.productService.searchBySku(sku));
     }
 
     @GetMapping("/search-by-description")
-    public ResponseEntity<List<Product>> getProduct(@RequestParam("description") String description) {
+    public ResponseEntity<List<ProductDTO>> getProduct(@RequestParam("description") String description) {
         return ResponseEntity.ok(this.productService.searchByDescription(description));
     }
 
@@ -50,16 +53,16 @@ public class ProductController {
 
     //PUT - UPDATE ALL
     @PutMapping("/{sku}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long sku,
-                                                 @RequestBody Product product) {
-        return ResponseEntity.ok(this.productService.updateProduct(sku, product));
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long sku,
+                                                    @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(this.productService.updateProduct(sku, productDTO));
     }
 
     //PATCH - PARTIAL UPDATE
     @PatchMapping("/{sku}")
-    public ResponseEntity<Product> partialUpdate(@PathVariable Long sku,
-                                                 @RequestBody Product product) {
-        return ResponseEntity.ok(this.productService.partialUpdate(sku, product));
+    public ResponseEntity<ProductDTO> updatePrice(@PathVariable Long sku,
+                                                  @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(this.productService.updatePrice(sku, productDTO));
     }
 
     //DELETE - REMOVE
