@@ -1,7 +1,11 @@
 package tech.ada.product_microservice.controller;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,15 @@ import java.util.List;
 @Tag(name = "Products")
 @RestController
 @RequestMapping("/products")
+@SecurityScheme(
+        name = "basicAuth", // can be set to anything
+        type = SecuritySchemeType.HTTP,
+        scheme = "basic"
+)
+@OpenAPIDefinition(
+        info = @Info(title = "Product API", version = "v1"),
+        security = @SecurityRequirement(name = "basicAuth") // references the name defined in the line 3
+)
 @RequiredArgsConstructor
 public class ProductController {
 
