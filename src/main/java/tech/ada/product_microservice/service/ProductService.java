@@ -1,12 +1,14 @@
 package tech.ada.product_microservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tech.ada.product_microservice.dto.PageDTO;
 import tech.ada.product_microservice.dto.PageableDTO;
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -102,4 +105,11 @@ public class ProductService {
                 .map(this.productMapper::toDTO)
                 .orElse(null);
     }
+
+    @Scheduled(fixedRate = 10000)
+    @CacheEvict(value = "products", allEntries = true)
+    public void clearCache() {
+        log.info("Clear cache");
+    }
+
 }
