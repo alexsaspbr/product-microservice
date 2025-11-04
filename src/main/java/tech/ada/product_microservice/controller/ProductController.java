@@ -22,15 +22,6 @@ import java.util.List;
 @Tag(name = "Products")
 @RestController
 @RequestMapping("/products")
-@SecurityScheme(
-        name = "basicAuth", // can be set to anything
-        type = SecuritySchemeType.HTTP,
-        scheme = "basic"
-)
-@OpenAPIDefinition(
-        info = @Info(title = "Product API", version = "v1"),
-        security = @SecurityRequirement(name = "basicAuth") // references the name defined in the line 3
-)
 @RequiredArgsConstructor
 public class ProductController {
 
