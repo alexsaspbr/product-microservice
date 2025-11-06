@@ -1,5 +1,6 @@
 package tech.ada.product_microservice.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -8,11 +9,16 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import tech.ada.product_microservice.client.ProductDummyClient;
 import tech.ada.product_microservice.dto.PageDTO;
 import tech.ada.product_microservice.dto.PageableDTO;
 import tech.ada.product_microservice.dto.ProductDTO;
+import tech.ada.product_microservice.dto.ProductDummyDTO;
+import tech.ada.product_microservice.exception.BusinessException;
+import tech.ada.product_microservice.exception.ClientException;
 import tech.ada.product_microservice.mapper.ProductMapper;
 import tech.ada.product_microservice.model.Product;
 import tech.ada.product_microservice.repository.ProductRepository;
@@ -20,6 +26,7 @@ import tech.ada.product_microservice.util.SortUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -28,6 +35,7 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductDummyClient productDummyClient;
     private final ProductMapper productMapper;
     private PageableDTO pageableDTO;
 
@@ -61,10 +69,22 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Produto nao encontrado"));
     }
 
+    @Transactional
     @CachePut("products")
     public ProductDTO create(ProductDTO productDTO) {
-        Product product = this.productMapper.toEntity(productDTO);
-        return this.productMapper.toDTO(this.productRepository.save(product));
+
+        try {
+            final ResponseEntity<ProductDummyDTO> response = productDummyClient.getProductById(productDTO.getSku());
+            if(response.getStatusCode().is2xxSuccessful()
+                    && Objects.nonNull(response.getBody())){
+                productDTO.setPrice(response.getBody().getPrice());
+                productDTO.setDescription(response.getBody().getTitle());
+            }
+            Product product = this.productMapper.toEntity(productDTO);
+            return this.productMapper.toDTO(this.productRepository.save(product));
+        } catch (Exception e) {
+            throw new ClientException(e.getMessage());
+        }
     }
 
     @CachePut("products")

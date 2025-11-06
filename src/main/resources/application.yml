@@ -8,4 +8,8 @@ springdoc:
     path: /swagger-ui.html
     api-docs:
       path: /api-docs
+client:
+  value: product-dummy-client
+  url: https://dummyjson.com
+jwt-secret: xpto-1172
 

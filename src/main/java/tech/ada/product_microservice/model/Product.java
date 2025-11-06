@@ -34,7 +34,7 @@ public class Product {
     @Column(nullable = false, unique = true)
     private Long sku;
 
-    @Column(length = 100)
+    @Column(length = 255)
     private String description;
 
     @Column(precision = 16, scale = 2)
