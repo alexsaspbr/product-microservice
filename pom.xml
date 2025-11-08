@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>tech.ada</groupId>
-    <artifactId>product-microservice</artifactId>
+    <artifactId>productEntity-microservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>product-microservice</name>
+    <name>productEntity-microservice</name>
     <description>Product microservice</description>
     <url/>
     <licenses>
