@@ -1,116 +1,143 @@
-# 🧩 Exercícios --- Query Methods com Spring Data JPA
+# 📦 Product Microservice
 
-## ⚙️ Interface Base do Repositório
+Este projeto é um **template base** para aplicações Spring Boot configuradas para rodar em containers Docker, orquestrados via **Docker Compose**.
 
-``` java
-public interface ProductRepository extends JpaRepository<Product, Long> {
-}
+---
+
+## 🚀 Estrutura do Projeto
+
+O projeto segue a Hexagonal Architeture.
+
+```bash
+├── comandos-docker.md
+├── docker-compose.yml
+├── Dockerfile
+├── HELP.md
+├── infra
+│   ├── grafana
+│   │   └── provisioning
+│   │       └── datasources
+│   │           └── datasource.yml
+│   ├── nginx
+│   │   └── nginx.conf
+│   └── prometheus
+│       └── prometheus.yml
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── README.md
+└── src
+    ├── main
+    │   ├── java
+    │   │   ├── br
+    │   │   │   └── com
+    │   │   │       └── asa
+    │   │   │           └── product_microservice
+    │   │   │               ├── application
+    │   │   │               │   ├── domain
+    │   │   │               │   │   └── exception
+    │   │   │               │   └── port
+    │   │   │               │       ├── in
+    │   │   │               │       │   └── service
+    │   │   │               │       └── out
+    │   │   │               │           └── repository
+    │   │   │               └── infrastructure
+    │   │   │                   ├── adapter
+    │   │   │                   │   ├── in
+    │   │   │                   │   │   └── web
+    │   │   │                   │   │       └── controller
+    │   │   │                   │   └── out
+    │   │   │                   │       ├── repository
+    │   │   │                   │       │   └── entity
+    │   │   │                   │       ├── service
+    │   │   │                   │       │   └── impl
+    │   │   │                   │       └── web
+    │   │   │                   │           └── client
+    │   │   │                   ├── config
+    │   │   │                   ├── dto
+    │   │   │                   ├── mapper
+    │   │   │                   └── util
+    │   │   └── tech
+    │   │       └── ada
+    │   └── resources
+    │       ├── application-dev.yml
+    │       ├── application-local.yml
+    │       ├── application.yml
+    │       ├── data.sql
+    │       ├── static
+    │       └── templates
+    └── test
+        └── java
+            └── br
+                └── com
+                    └── asa
+                        └── product_microservice
 ```
 
-------------------------------------------------------------------------
+---
 
-## 🧠 Exercícios --- Query Methods
+## 🧩 Tecnologias Utilizadas
 
-### 🧩 Exercício 1 --- Consultas simples por descrição
+- **Java 21+**
+- **Spring Boot** (Web, Data JPA, Actuator, Security, OpenFeign, Cache...)
+- **PostgreSQL** (banco de dados)
+- **H2** (banco de dados) - rodando local
+- **Docker** e **Docker Compose**
 
-**Objetivo:**\
-Criar métodos que filtrem produtos com base no campo `description`.
+---
 
-**Tarefas:** 
+## ▶️ Como Rodar
 
-1.Crie um método para buscar um produto pela descrição
-exata.\
+### 1. Construir o projeto
 
-2.  Crie um método que busque todos os produtos que contenham parte da
-    descrição.\
+Se estiver usando **Maven**:
+```bash
+mvn clean package
+```
 
-3.  Crie um método que busque todos os produtos cuja descrição comece
-    com determinado texto.\
+### 2. Subir os containers
 
-------------------------------------------------------------------------
+```bash
+docker-compose up --build -d
+```
 
-### 🧩 Exercício 2 --- Consultas por preço
+A aplicação estará disponível em: [http://localhost](http://localhost)
 
-**Objetivo:**\
-Praticar operadores de comparação com campos numéricos.
+---
 
-**Tarefas:** 
+## 🧰 Comandos Úteis
 
-1.Buscar produtos com preço maior que um valor.\
+| Comando | Descrição |
+|----------|------------|
+| `docker-compose up -d` | Inicia os containers em background |
+| `docker-compose down` | Encerra e remove os containers |
+| `docker-compose logs -f` | Exibe logs em tempo real |
+| `docker ps` | Lista containers ativos |
 
-2.  Buscar produtos com preço entre dois valores.\
+---
 
-3.  Buscar o produto mais caro.\
+## 🧱 Extensões
 
+- **Prometheus** e **Grafana** para monitoramento.
+- **Zipkin** para trace.
+- **NGINX** como proxy reverso.
+- **Profiles** para diferentes ambientes (dev, prod). Sendo esse ultimo, necessario configuracao.
 
-------------------------------------------------------------------------
+---
 
-### 🧩 Exercício 3 --- Consultas compostas
+## Monitoramento
 
-**Objetivo:**\
-Usar múltiplas condições no mesmo método.
+- **Zipkin** - Apos subir o docker-compose, acessar [http://localhost:9411](http://localhost:9411).
+- **Prometheus** - Apos subir o docker-compose, acessar [http://localhost:9090](http://localhost:9090).
+- **Grafana** - Apos subir o docker-compose, acessar [http://localhost:3000](http://localhost:3000).
+    - Em Dashboards, importar os templates 20727 e 21308. 
 
-**Tarefas:** 
+## 📜 Licença
 
-1. Buscar produtos com um `sku` específico e preço abaixo
-de um valor.\
+Distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
-2.  Buscar produtos com determinada descrição **ou** com preço acima de
-    um valor.\
-    
-------------------------------------------------------------------------
+---
 
-### 🧩 Exercício 4 --- Ordenação e Limites
+## 👨‍💻 Autor
 
-**Objetivo:**\
-Aprender a aplicar ordenação e limitar resultados.
-
-**Tarefas:**
-
-1. Buscar os 5 produtos mais baratos.\
-
-2.  Buscar os 3 produtos mais caros.\
-
-------------------------------------------------------------------------
-
-### 🧩 Exercício 5 --- Consultas personalizadas com @Query
-
-**Objetivo:**\
-Utilizar JPQL para consultas customizadas.
-
-**Tarefas:**
-
-1. Buscar produtos cuja descrição contenha parte de um
-texto (ignorando maiúsculas/minúsculas).\
-
-2.  Buscar produtos por faixa de preço mínima e máxima.
-
-------------------------------------------------------------------------
-
-### 🧩 Exercício 6 --- Contagem e Existência
-
-**Objetivo:**\
-Aprender a usar métodos de agregação.
-
-**Tarefas:**
-
-1. Contar quantos produtos possuem preço acima de um
-valor.\
-
-2.  Verificar se existe um produto com determinado SKU.\
-
-------------------------------------------------------------------------
-
-### 💡 Desafio Final --- Filtro Dinâmico
-
-Crie um endpoint `/products/search` que receba parâmetros opcionais:
-
--   `description`
--   `minPrice`
--   `maxPrice`
-
-E retorne os produtos filtrados dinamicamente conforme os parâmetros
-informados.
-
-Sugestões: - Use **Specifications** (`JpaSpecificationExecutor`), ou -
-Use uma query JPQL com `COALESCE` para tratar parâmetros nulos.
+Template criado por Alex Araujo.
