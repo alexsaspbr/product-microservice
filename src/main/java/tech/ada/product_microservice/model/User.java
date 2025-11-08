@@ -1,6 +1,7 @@
 package tech.ada.product_microservice.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,13 +15,14 @@ import java.util.List;
 @Table(name = "tb_users")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -29,9 +31,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    public User(String password, String username, UserRole role) {
-        this.password = password;
+    public User(String username, String password, UserRole role) {
         this.username = username;
+        this.password = password;
         this.role = role;
     }
 

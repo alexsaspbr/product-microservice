@@ -2,10 +2,11 @@ package tech.ada.product_microservice.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +19,7 @@ import tech.ada.product_microservice.service.AuthService;
 import tech.ada.product_microservice.service.JWTService;
 import tech.ada.product_microservice.service.UserService;
 
-import java.util.Objects;
-
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication")
@@ -44,7 +44,6 @@ public class AuthController {
                 .authenticate(usernamePasswordAuthenticationToken);
 
         String token = this.jwtService.generatedToken((User) authentication.getPrincipal());
-
         return ResponseEntity.ok(new UserResponseDTO(token));
 
     }
@@ -52,9 +51,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserDTO userDTO) {
 
-
-        if(Objects.nonNull(this.authService.loadUserByUsername(userDTO.getUsername()))){
+        try {
+            this.authService.loadUserByUsername(userDTO.getUsername());
             return ResponseEntity.badRequest().build();
+        } catch (UsernameNotFoundException e) {
+            
         }
 
         this.userService.register(userDTO);
